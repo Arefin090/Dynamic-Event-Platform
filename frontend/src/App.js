@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './Global/Header';
+import Footer from './Global/Footer';
 import Home from './Pages/Home';
 import EventList from './components/Event/EventList';
 import EventForm from './components/Event/EventForm';
@@ -24,6 +25,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }
