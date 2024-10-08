@@ -1,32 +1,39 @@
 const express = require('express');
 const cors = require('cors');
-const bodyParser = require('body-parser');
-const dotenv = require('dotenv');
-const db = require('./db'); // Import database connection
-const eventRoutes = require('./routes/events'); // Import event routes
+const { poolPromise } = require('./db'); // Database connection
+const eventRoutes = require('./routes/events'); // Your events route
+const userRoutes = require('./routes/users');
+const rsvpRoutes = require('./routes/rsvps');
+const { swaggerUi, swaggerDocs } = require('./swagger');
+require('dotenv').config();
+require('./db');
 
-dotenv.config();
-
-const app = express();
-
-// Configure CORS with specific origin
-const corsOptions = {
-    origin: 'http://localhost:3001', // Allow your frontend's origin
-    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
-    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
-  };
-  
-  app.use(cors(corsOptions)); // Apply CORS options to the app
-  app.use(bodyParser.json()); // Parse JSON bodies
-  app.use('/api/events', eventRoutes); // Use event routes
-
-// Test route to check server status
-app.get('/', (req, res) => {
-  res.send('Event Platform API is running!');
-});
-
-// Start the server
+const app = express(); // Initialize the app
 const PORT = process.env.PORT || 5001;
+
+app.use(cors()); // Use CORS middleware
+app.use(express.json()); // Middleware to parse JSON
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Test database connection on server startup
+async function testConnection() {
+  try {
+    const pool = await poolPromise;
+    const result = await pool.request().query('SELECT 1 AS number');
+    console.log('Test query result:', result.recordset);
+  } catch (err) {
+    console.error('Error executing test query:', err);
+  }
+}
+
+testConnection();
+
+// Define routes
+app.use('/api/events', eventRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/rsvps', rsvpRoutes);
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
