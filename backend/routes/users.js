@@ -1,62 +1,21 @@
-/**
- * @swagger
- * /api/users:
- *   get:
- *     summary: Retrieve a list of users
- *     responses:
- *       200:
- *         description: A list of users.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   username:
- *                     type: string
- *                   email:
- *                     type: string
- *                   created_at:
- *                     type: string
- *                     format: date-time
- *   post:
- *     summary: Create a new user
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       201:
- *         description: User created successfully
- *       500:
- *         description: Error creating user
- */
-
 const express = require('express');
 const router = express.Router();
 const { poolPromise } = require('../db');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const authenticateToken = require('../middleware/auth')
+const { JWT_SECRET, JWT_EXPIRATION } = process.env;
 
-// Create a new user
+// Register a new user
 router.post('/', async (req, res) => {
   try {
     const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const pool = await poolPromise;
     await pool.request()
       .input('username', username)
       .input('email', email)
-      .input('password', password)
+      .input('password', hashedPassword)
       .query(`
         INSERT INTO Users (username, email, password)
         VALUES (@username, @email, @password);
@@ -68,36 +27,34 @@ router.post('/', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/users:
- *   get:
- *     summary: Retrieve a list of users
- *     responses:
- *       200:
- *         description: A list of users.
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 type: object
- *                 properties:
- *                   id:
- *                     type: integer
- *                   username:
- *                     type: string
- *                   email:
- *                     type: string
- *                   created_at:
- *                     type: string
- *                     format: date-time
- */
+// Login route to authenticate user and issue a JWT
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const pool = await poolPromise;
+    const result = await pool.request()
+      .input('email', email)
+      .query(`SELECT * FROM Users WHERE email = @email`);
+    
+    const user = result.recordset[0];
+    if (!user) return res.status(401).json({ message: 'Invalid email or password' });
+    
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) return res.status(401).json({ message: 'Invalid email or password' });
 
-router.get('/', async (req, res) => {
+    const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
+    res.json({ token });
+  } catch (err) {
+    console.error('Error during login:', err);
+    res.status(500).json({ error: 'Error during login' });
+  }
+});
+
+// Get all users
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const pool = await poolPromise;
-    const result = await pool.request().query(`SELECT * FROM Users;`);
+    const result = await pool.request().query(`SELECT id, username, email, created_at FROM Users;`);
     res.status(200).json(result.recordset);
   } catch (err) {
     console.error('Error fetching users:', err);
@@ -105,46 +62,15 @@ router.get('/', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/users/{id}:
- *   get:
- *     summary: Retrieve a user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The user ID
- *     responses:
- *       200:
- *         description: A user object
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 id:
- *                   type: integer
- *                 username:
- *                   type: string
- *                 email:
- *                   type: string
- *                 created_at:
- *                   type: string
- *                   format: date-time
- *       404:
- *         description: User not found
- */
-
-router.get('/:id', async (req, res) => {
+// Get a specific user by ID
+router.get('/:id',authenticateToken, async (req, res) => {
   try {
     const userId = req.params.id;
     const pool = await poolPromise;
     const result = await pool.request()
       .input('id', userId)
-      .query(`SELECT * FROM Users WHERE id = @id;`);
+      .query(`SELECT id, username, email, created_at FROM Users WHERE id = @id;`);
+    
     if (result.recordset.length === 0) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -155,50 +81,18 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/users/{id}:
- *   put:
- *     summary: Update a user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The user ID
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               username:
- *                 type: string
- *               email:
- *                 type: string
- *               password:
- *                 type: string
- *     responses:
- *       200:
- *         description: User updated successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Error updating user
- */
-
-router.put('/:id', async (req, res) => {
+// Update a user by ID
+router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.id;
     const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
     const pool = await poolPromise;
     await pool.request()
       .input('id', userId)
       .input('username', username)
       .input('email', email)
-      .input('password', password)
+      .input('password', hashedPassword)
       .query(`
         UPDATE Users
         SET username = @username, email = @email, password = @password
@@ -211,28 +105,8 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-/**
- * @swagger
- * /api/users/{id}:
- *   delete:
- *     summary: Delete a user by ID
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The user ID
- *     responses:
- *       200:
- *         description: User deleted successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Error deleting user
- */
-
-router.delete('/:id', async (req, res) => {
+// Delete a user by ID
+router.delete('/:id', authenticateToken, async (req, res) => {
   try {
     const userId = req.params.id;
     const pool = await poolPromise;
