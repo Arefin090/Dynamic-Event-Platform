@@ -1,28 +1,31 @@
-// src/Pages/Login.js
+// src/Pages/Register.js
 import React, { useState } from 'react';
 import { Container, TextField, Button, Card, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function Login() {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
+function Register() {
+  const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' });
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const handleSubmit = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/users/login', credentials);
-      // Store the token
-      localStorage.setItem('token', response.data.token);
-      setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
+      await axios.post('http://localhost:5001/api/users', formData);
+      setSnackbar({ open: true, message: 'Registration successful! Please log in.', severity: 'success' });
       setTimeout(() => {
-        navigate('/home');
+        navigate('/login');
       }, 1500);
     } catch (error) {
-      console.error('Error logging in:', error);
-      setSnackbar({ open: true, message: 'Login failed. Please try again.', severity: 'error' });
+      console.error('Error during registration:', error);
+      setSnackbar({ open: true, message: 'Registration failed. Please try again.', severity: 'error' });
     } finally {
       setLoading(false);
     }
@@ -36,38 +39,49 @@ function Login() {
     <Container maxWidth="xs" sx={{ mt: 8 }}>
       <Card sx={{ p: 4, boxShadow: 4 }}>
         <Typography variant="h4" align="center" gutterBottom>
-          Welcome Back!
+          Join Us!
         </Typography>
         <Typography variant="body1" align="center" sx={{ mb: 3, color: 'text.secondary' }}>
-          Sign in to continue
+          Create your account to get started
         </Typography>
         <TextField
+          label="Username"
+          name="username"
+          fullWidth
+          margin="normal"
+          variant="outlined"
+          value={formData.username}
+          onChange={handleChange}
+        />
+        <TextField
           label="Email"
+          name="email"
           type="email"
           fullWidth
           margin="normal"
           variant="outlined"
-          value={credentials.email}
-          onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+          value={formData.email}
+          onChange={handleChange}
         />
         <TextField
           label="Password"
+          name="password"
           type="password"
           fullWidth
           margin="normal"
           variant="outlined"
-          value={credentials.password}
-          onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+          value={formData.password}
+          onChange={handleChange}
         />
         <Button
           variant="contained"
           color="primary"
           fullWidth
           sx={{ mt: 3 }}
-          onClick={handleLogin}
+          onClick={handleSubmit}
           disabled={loading}
         >
-          {loading ? <CircularProgress size={24} /> : 'Login'}
+          {loading ? <CircularProgress size={24} /> : 'Register'}
         </Button>
       </Card>
 
@@ -81,4 +95,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
