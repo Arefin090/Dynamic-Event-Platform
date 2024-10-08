@@ -1,11 +1,12 @@
 // src/Global/Header.js
 import React from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton } from '@mui/material';
+import {AppBar, Toolbar, Typography, Button, Container} from '@mui/material';
 import { Link } from 'react-router-dom';
 
 function Header() {
   return (
     <AppBar position="static">
+      <Container>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Event Platform</Link>
@@ -15,6 +16,7 @@ function Header() {
         <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
         <Button color="inherit" component={Link} to="/login">Login</Button>
       </Toolbar>
+      </Container>
     </AppBar>
   );
 }
