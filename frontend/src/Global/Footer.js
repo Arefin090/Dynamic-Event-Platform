@@ -17,7 +17,8 @@ function Footer() {
               About Us
             </Typography>
             <Typography variant="body2" color="inherit">
-              Discover and create amazing events with Event Platform. Connect with people in your area and build unforgettable memories.
+              {/* Discover and create amazing events with Event Platform. Connect with people in your area and build unforgettable memories. */}
+              This project is created to cater towards the assignemnt for SWE40006 - Software Deployment and Evolution.
             </Typography>
           </Grid>
 
