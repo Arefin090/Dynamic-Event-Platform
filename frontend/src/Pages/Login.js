@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Card, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { loginUser } from '../Services/userService';
 
 function Login() {
   const [credentials, setCredentials] = useState({ email: '', password: '' });
@@ -13,12 +13,11 @@ function Login() {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:5001/api/users/login', credentials);
-      // Store the token
-      localStorage.setItem('token', response.data.token);
+      const token = await loginUser(credentials); 
+      localStorage.setItem('token', token); // Store the token
       setSnackbar({ open: true, message: 'Login successful!', severity: 'success' });
       setTimeout(() => {
-        navigate('/home');
+        navigate('/');
       }, 1500);
     } catch (error) {
       console.error('Error logging in:', error);
@@ -26,7 +25,7 @@ function Login() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   const handleCloseSnackbar = () => {
     setSnackbar({ open: false, message: '', severity: '' });

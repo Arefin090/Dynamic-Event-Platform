@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Card, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { registerUser } from '../Services/userService';
 
 function Register() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
@@ -18,7 +18,7 @@ function Register() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await axios.post('http://localhost:5001/api/users', formData);
+        await registerUser(formData); // Use the service function here
       setSnackbar({ open: true, message: 'Registration successful! Please log in.', severity: 'success' });
       setTimeout(() => {
         navigate('/login');
