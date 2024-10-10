@@ -19,7 +19,7 @@ app.use(cors(corsOptions));
 
 app.use(express.json()); // Middleware to parse JSON
 
-// Swagger Documentation Route
+// Swagger Documentation Route - Serve only in development
 if (process.env.NODE_ENV === 'development') {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 }
@@ -43,5 +43,5 @@ app.use('/api/users', userRoutes);
 app.use('/api/rsvps', rsvpRoutes);
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });
