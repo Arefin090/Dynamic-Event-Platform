@@ -22,14 +22,14 @@ jobs:
         working-directory: ./frontend
         run: npm install
 
-      - name: Build frontend
+      - name: Build the frontend
         working-directory: ./frontend
         run: npm run build
 
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: dynamic-event-frontend
+          app-name: dynamic-event-frontend  # Your frontend App Service name
           slot-name: 'production'
-          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_FRONTEND}}
           package: ./frontend/build

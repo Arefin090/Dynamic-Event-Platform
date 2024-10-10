@@ -11,15 +11,10 @@ require('./db');
 const app = express(); // Initialize the app
 const PORT = process.env.PORT || 5001;
 
-const corsOptions = {
-  origin: 'https://dynamic-event-frontend-cug7auanc5bedbbv.australiacentral-01.azurewebsites.net',
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
-
+app.use(cors()); // Use CORS middleware
 app.use(express.json()); // Middleware to parse JSON
 
-// Swagger Documentation Route - Serve only in development
+// Swagger Documentation Route
 if (process.env.NODE_ENV === 'development') {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 }
@@ -43,5 +38,5 @@ app.use('/api/users', userRoutes);
 app.use('/api/rsvps', rsvpRoutes);
 // Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
