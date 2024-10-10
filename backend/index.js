@@ -11,7 +11,12 @@ require('./db');
 const app = express(); // Initialize the app
 const PORT = process.env.PORT || 5001;
 
-app.use(cors()); // Use CORS middleware
+const corsOptions = {
+  origin: 'https://dynamic-event-frontend-cug7auanc5bedbbv.australiacentral-01.azurewebsites.net',
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+
 app.use(express.json()); // Middleware to parse JSON
 
 // Swagger Documentation Route
