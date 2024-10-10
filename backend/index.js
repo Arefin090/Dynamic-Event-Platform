@@ -14,7 +14,10 @@ const PORT = process.env.PORT || 5001;
 app.use(cors()); // Use CORS middleware
 app.use(express.json()); // Middleware to parse JSON
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+// Swagger Documentation Route
+if (process.env.NODE_ENV === 'development') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+}
 
 // Test database connection on server startup
 async function testConnection() {
