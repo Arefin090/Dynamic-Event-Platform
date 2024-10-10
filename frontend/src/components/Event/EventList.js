@@ -1,7 +1,7 @@
 // src/components/Event/EventList.js
 import React, { useState, useEffect } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Button, CircularProgress, Box, IconButton, Pagination} from '@mui/material';
-import { getEvents } from '../../Services/eventService';
+import { getEvents } from '../../Service/eventService';
 import { Link } from 'react-router-dom';
 import EventIcon from '@mui/icons-material/Event';
 import LocationOnIcon from '@mui/icons-material/LocationOn';

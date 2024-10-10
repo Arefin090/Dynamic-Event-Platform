@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Card, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { registerUser } from '../Services/userService';
+import { registerUser } from '../Service/userService';
 
 function Register() {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });

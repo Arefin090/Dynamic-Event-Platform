@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Card, CardContent, Typography, Box, Button, Divider, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, CircularProgress } from '@mui/material';
-import { getEventById, deleteEvent } from '../../Services/eventService';
+import { getEventById, deleteEvent } from '../../Service/eventService';
 
 function EventDetail() {
   const { id } = useParams();

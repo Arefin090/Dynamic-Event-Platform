@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Container, TextField, Button, Card, Typography, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { loginUser } from '../Services/userService';
+import { loginUser } from '../Service/userService';
 
 function Login() {
   const [credentials, setCredentials] = useState({ email: '', password: '' });

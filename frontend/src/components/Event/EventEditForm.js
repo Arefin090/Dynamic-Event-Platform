@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Snackbar, Alert } from '@mui/material';
-import { getEventById, updateEvent } from '../../Services/eventService';
+import { getEventById, updateEvent } from '../../Service/eventService';
 
 function EventEditForm() {
   const { id } = useParams();

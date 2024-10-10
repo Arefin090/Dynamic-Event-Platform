@@ -4,7 +4,7 @@ import EventIcon from '@mui/icons-material/Event';
 import PlaceIcon from '@mui/icons-material/Place';
 import DescriptionIcon from '@mui/icons-material/Description';
 import TitleIcon from '@mui/icons-material/Title';
-import { createEvent } from '../../Services/eventService';
+import { createEvent } from '../../Service/eventService';
 
 function EventForm() {
   const [newEvent, setNewEvent] = useState({ title: '', description: '', date: '', location: '' });
