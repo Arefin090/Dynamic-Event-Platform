@@ -27,11 +27,17 @@ jobs:
         run: |
           cd frontend
           npm run build
+    
+           
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_PUBLISH_PROFILE }}
 
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: "dynamic-event-frontend"
           slot-name: "production"
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND }}
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           package: ./frontend/build
