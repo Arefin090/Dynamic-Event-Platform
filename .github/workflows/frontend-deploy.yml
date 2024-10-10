@@ -1,4 +1,4 @@
-name: Frontend Deployment
+name: Frontend Deploy
 
 on:
   push:
@@ -6,11 +6,11 @@ on:
       - master
 
 jobs:
-  build-and-deploy:
+  deploy-frontend:
     runs-on: ubuntu-latest
-    
+
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -19,25 +19,17 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: |
-          cd frontend
-          npm install
+        working-directory: ./frontend
+        run: npm install
 
-      - name: Build
-        run: |
-          cd frontend
-          npm run build
-    
-           
-      - name: Login to Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+      - name: Build frontend
+        working-directory: ./frontend
+        run: npm run build
 
-      - name: Deploy to Azure Web App
+      - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
-          app-name: "dynamic-event-frontend"
-          slot-name: "production"
+          app-name: dynamic-event-frontend
+          slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE_FRONTEND }}
           package: ./frontend/build
