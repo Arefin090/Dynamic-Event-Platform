@@ -11,25 +11,20 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '18.x'
 
       - name: Install dependencies
         working-directory: ./frontend
         run: npm install
 
-      - name: Build the frontend
-        working-directory: ./frontend
-        run: npm run build
-
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
           app-name: dynamic-event-frontend  # Your frontend App Service name
-          slot-name: 'production'
           publish-profile: ${{ secrets.AZURE_PUBLISH_FRONTEND}}
-          package: ./frontend/build
+          package: ./frontend
