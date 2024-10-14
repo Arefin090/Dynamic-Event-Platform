@@ -25,7 +25,10 @@ jobs:
       - name: Build the frontend
         working-directory: ./frontend
         run: npm run build
-
+    
+      - name: Ensure Serve is Installed
+        run: npm install -g serve
+        
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v2
         with:
