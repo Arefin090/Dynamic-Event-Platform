@@ -1,0 +1,40 @@
+name: Backend Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the latest code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20' # Using the latest stable Node.js version
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm install
+
+      # Step 4: Optional build step if your backend has a build command
+      - name: Build backend
+        working-directory: ./backend
+        run: npm run build || echo "No build script found, skipping this step"
+
+      # Step 5: Deploy to Azure Web App
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: dynamic-event-backend
+          slot-name: 'production'
+          publish-profile: ${{secrets.AZURE_BACKEND_PUBLISH_PROFILE}}
+          package: ./backend
