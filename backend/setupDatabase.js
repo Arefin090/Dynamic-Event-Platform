@@ -1,11 +1,17 @@
-const { poolPromise } = require('./db'); // Assuming 'db.js' is your connection file
+const { poolPromise } = require('./db');
 
 async function setupDatabase() {
   try {
     const pool = await poolPromise;
+    
+    if (!pool) {
+      console.error("Failed to establish a database connection.");
+      return;
+    }
 
-    // Create Users table
-    await pool.request().query(`
+    // Check if the 'Users' table exists, and create it if not
+    const usersTableResult = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Users')
       CREATE TABLE Users (
         id INT PRIMARY KEY IDENTITY(1,1),
         username NVARCHAR(50) NOT NULL,
@@ -14,10 +20,15 @@ async function setupDatabase() {
         created_at DATETIME DEFAULT GETDATE()
       )
     `);
-    console.log("Users table created.");
+    if (usersTableResult.rowsAffected && usersTableResult.rowsAffected[0] === 1) {
+      console.log("Users table created.");
+    } else {
+      console.log("Users table already exists or creation query returned no changes.");
+    }
 
-    // Create Events table
-    await pool.request().query(`
+    // Check if the 'Events' table exists, and create it if not
+    const eventsTableResult = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Events')
       CREATE TABLE Events (
         id INT PRIMARY KEY IDENTITY(1,1),
         title NVARCHAR(255) NOT NULL,
@@ -27,10 +38,15 @@ async function setupDatabase() {
         created_at DATETIME DEFAULT GETDATE()
       )
     `);
-    console.log("Events table created.");
+    if (eventsTableResult.rowsAffected && eventsTableResult.rowsAffected[0] === 1) {
+      console.log("Events table created.");
+    } else {
+      console.log("Events table already exists or creation query returned no changes.");
+    }
 
-    // Create RSVPs table
-    await pool.request().query(`
+    // Check if the 'RSVPs' table exists, and create it if not
+    const rsvpsTableResult = await pool.request().query(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'RSVPs')
       CREATE TABLE RSVPs (
         id INT PRIMARY KEY IDENTITY(1,1),
         user_id INT NOT NULL,
@@ -41,10 +57,21 @@ async function setupDatabase() {
         FOREIGN KEY (event_id) REFERENCES Events(id) ON DELETE CASCADE
       )
     `);
-    console.log("RSVPs table created.");
+    if (rsvpsTableResult.rowsAffected && rsvpsTableResult.rowsAffected[0] === 1) {
+      console.log("RSVPs table created.");
+    } else {
+      console.log("RSVPs table already exists or creation query returned no changes.");
+    }
+
   } catch (error) {
     console.error("Error setting up database:", error.message);
+    // You may want to log error stack trace in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error(error.stack);
+    }
   }
 }
 
 setupDatabase();
+
+module.exports = setupDatabase;

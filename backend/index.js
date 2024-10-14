@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { poolPromise } = require('./db'); // Database connection
+const setupDatabase = require('./setupDatabase');
 const eventRoutes = require('./routes/events'); // Your events route
 const userRoutes = require('./routes/users');
 const rsvpRoutes = require('./routes/rsvps');
@@ -32,6 +33,8 @@ async function testConnection() {
 
 testConnection();
 
+// Setup the database (only creates tables if they're missing)
+setupDatabase();
 // Define routes
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
