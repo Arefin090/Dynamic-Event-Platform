@@ -1,6 +1,10 @@
 const { poolPromise } = require('./db');
 
 async function setupDatabase() {
+
+  if (process.env.NODE_ENV === 'test') {
+    return; // Skip setup in test environment
+  }
   try {
     const pool = await poolPromise;
     
@@ -71,7 +75,4 @@ async function setupDatabase() {
     }
   }
 }
-
-setupDatabase();
-
 module.exports = setupDatabase;

@@ -31,15 +31,22 @@ async function testConnection() {
   }
 }
 
-testConnection();
+// Run setupDatabase and testConnection only in non-test environments
+if (process.env.NODE_ENV !== 'test') {
+  testConnection();
+  setupDatabase();
+}
 
-// Setup the database (only creates tables if they're missing)
-setupDatabase();
 // Define routes
 app.use('/api/events', eventRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rsvps', rsvpRoutes);
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+
+
+// Only start server if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
+module.exports = app; // Export for testing
