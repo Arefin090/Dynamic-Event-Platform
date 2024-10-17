@@ -10,6 +10,7 @@ import EventEditForm from './components/Event/EventEditForm';
 import Dashboard from './Pages/Dashboard';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/register" element={<Register />} />
       </Routes>
       <Footer />
+      <Analytics />
     </Router>
   );
 }
