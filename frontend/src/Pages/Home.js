@@ -1,10 +1,12 @@
 // src/pages/Home.js
 import React from 'react';
 import { Container, Typography, Button, Box, Card, CardContent, Fade } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { styled } from '@mui/system';
 import EventIcon from '@mui/icons-material/Event';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import useAuthRedirect from '../hooks/useAuthRedirect';
+
 
 const backgroundUrl = 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=MnwzNjUyOXwwfDF8c2VhcmNofDE2fHxldmVudHN8ZW58MHx8fHwxNjEyODQ5MzQ5&ixlib=rb-1.2.1&q=80&w=1080';
 
@@ -35,6 +37,10 @@ const HeroSection = styled(Box)(({ theme }) => ({
 }));
 
 function Home() {
+  const token = localStorage.getItem('token');
+  const { redirectToLogin, snackbar } = useAuthRedirect(!!token);
+  const navigate = useNavigate();
+
   return (
     <Container maxWidth="lg" sx={{ mt: 6 }}>
       <HeroSection>
@@ -85,9 +91,14 @@ function Home() {
               <Fade in timeout={2000}>
                 <Button
                   variant="outlined"
-                  color="primary"
-                  component={Link}
-                  to="/create"
+                    color="primary"
+                    onClick={() => {
+                      if (!token) {
+                        redirectToLogin('Login required to create an event.');
+                      } else {
+                        navigate('/create'); 
+                      }
+                    }}
                   startIcon={<AddCircleOutlineIcon />}
                   sx={{
                     padding: '12px 24px',
@@ -106,6 +117,7 @@ function Home() {
           </CardContent>
         </Card>
       </HeroSection>
+      {snackbar}
     </Container>
   );
 }

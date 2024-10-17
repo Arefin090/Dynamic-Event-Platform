@@ -9,11 +9,13 @@ import EventIcon from '@mui/icons-material/Event';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LoginIcon from '@mui/icons-material/Login';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import useAuthRedirect from '../hooks/useAuthRedirect';
 
 function Header() {
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const { redirectToLogin, snackbar } = useAuthRedirect(!!token);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -25,6 +27,22 @@ function Header() {
       return;
     }
     setDrawerOpen(open);
+  };
+
+  const handleCreateEventClick = () => {
+    if (!token) {
+      redirectToLogin();
+    } else {
+      navigate('/create');
+    }
+  };
+
+  const handleDashboardClick = () => {
+    if (!token) {
+      redirectToLogin();
+    } else {
+      navigate('/dashboard');
+    }
   };
 
   const drawerList = (
@@ -84,8 +102,8 @@ function Header() {
           {/* Desktop Buttons */}
           <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
             <Button color="inherit" component={Link} to="/" sx={{ mr: 1 }}>Home</Button>
-            <Button color="inherit" component={Link} to="/create" sx={{ mr: 1 }}>Create Event</Button>
-            <Button color="inherit" component={Link} to="/dashboard" sx={{ mr: 1 }}>Dashboard</Button>
+            <Button color="inherit" onClick={handleCreateEventClick} sx={{ mr: 1 }}>Create Event</Button>
+            <Button color="inherit" onClick={handleDashboardClick} sx={{ mr: 1 }}>Dashboard</Button>
             {!token ? (
               <>
                 <Button color="inherit" component={Link} to="/login" sx={{ mr: 1 }}>Login</Button>
@@ -111,6 +129,7 @@ function Header() {
           </Box>
         </Toolbar>
       </Container>
+      {snackbar}
     </AppBar>
   );
 }
